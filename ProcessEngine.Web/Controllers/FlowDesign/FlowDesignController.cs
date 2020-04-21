@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ProcessEngine.Application.IService;
 using ProcessEngine.Application.IService.WorkFlow;
-using ProcessEngine.Domain.WokrFlow;
+using ProcessEngine.Core;
+using ProcessEngine.Domain;
+using ProcessEngine.Domain.WorkFlow;
 using ProcessEngine.Repository.Interface.WorkFlow;
 using ProcessEngine.Web.Models;
 
@@ -29,37 +30,66 @@ namespace ProcessEngine.Web.Controler.FlowDesign
         {
             return View();
         }
-        public IActionResult Start()
-        {
-            return View();
+        [HttpGet]
+        [Route("flowdesign/nodetype-pre")]
+        public IActionResult GetNodeTypeControl()
+        {            
+            return Json(new JsonReturn("0", typeof(WorkFlowNodeType).ToKeyValueList()));
         }
-        public IActionResult FlowList()
+        //[HttpGet]
+        //[Route("flowdesign/pre-control/{workFlowId}")]
+        //public JsonResult GetPreviousNodes(string workFlowId)
+        //{
+        //    IList<WorkFlowNode> workFlowNodes = _workFlowNodeService.GetPreviousControl(workFlowId);
+        //    return Json(new JsonReturn("0", workFlowNodes)); 
+        //}
+        [HttpGet]
+        [Route("workflow/{id}")]
+        public IActionResult GetWorkFlow(string id)
         {
-            return View();
-        }
-        [HttpPost]
-        public IActionResult CreateFlow([FromBody]WorkFlow workFlow)
-        {
+           
             JsonReturn jsonReturn = null;
             try
-            {              
-                _workFlowService.Create(workFlow);
-                jsonReturn = new JsonReturn("0","",workFlow.Id);
+            {
+                IList<WorkFlowNodeDto> dtos = _workFlowNodeService.GetFlow(id);
+                jsonReturn = new JsonReturn("0", "", new { total = dtos.Count, list = dtos }); ;
             }
             catch (Exception ex)
             {
-                jsonReturn = new JsonReturn("1",ex.Message);
+                jsonReturn = new JsonReturn("1", ex.Message);
             }
             return Json(jsonReturn);
+
         }
-        [HttpPost]
-        public IActionResult AddFlowStep([FromBody]WorkFlowNode workFlowNode)
+        [HttpGet]
+        [Route("flowdesign/workflownode/{nodeId}")]
+        public IActionResult GetWorkFlowNode(string nodeId)
         {
+
             JsonReturn jsonReturn = null;
             try
             {
-                ProcessFlow process = _workFlowNodeService.AddFlowStep(workFlowNode);
-                jsonReturn = new JsonReturn("0", process);
+                WorkFlowNode workFlowNode = _workFlowNodeRepository.SelectSingle(s => s.Id == nodeId);
+                jsonReturn = new JsonReturn("0", workFlowNode) ;
+            }
+            catch (Exception ex)
+            {
+                jsonReturn = new JsonReturn("1", ex.Message);
+            }
+            return Json(jsonReturn);
+
+        }
+        [HttpPost]
+        public JsonResult AddFlowStep()
+        {
+            JsonReturn jsonReturn = null;
+            string nodeJson= Request.Form["nodeJson"];
+            bool update =Convert.ToBoolean(Request.Form["update"]);
+            WorkFlowNode workFlowNode = JsonConvert.DeserializeObject<WorkFlowNode>(nodeJson);
+            try
+            {
+                IList<WorkFlowNodeDto> dtos = _workFlowNodeService.AddOrUpdateStep(workFlowNode, update);
+                jsonReturn = new JsonReturn("0", "", new { total = dtos.Count, list = dtos }); ;
             }
             catch (Exception ex)
             {
@@ -84,14 +114,6 @@ namespace ProcessEngine.Web.Controler.FlowDesign
             }
             return Json(jsonReturn);
         }
-        [HttpPost]
-        public IActionResult GetList()
-        {
-            int currentPage = Convert.ToInt32(Request.Form["currentPage"]);
-            int pageSize = Convert.ToInt32(Request.Form["pageSize"]);
-            int count = _workFlowRepository.SelectCount();
-            IEnumerable<WorkFlow> workFlows = _workFlowRepository.SelectByPage(currentPage,pageSize);
-            return Json(new JsonReturn("0", new { total=count,data=workFlows}));
-        }
+          
     }
 }

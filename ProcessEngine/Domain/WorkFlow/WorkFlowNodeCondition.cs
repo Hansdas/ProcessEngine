@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace ProcessEngine.Domain.WokrFlow
+namespace ProcessEngine.Domain.WorkFlow
 {
   public  class WorkFlowNodeCondition
     {

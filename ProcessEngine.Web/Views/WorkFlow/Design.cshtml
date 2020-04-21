@@ -1,0 +1,193 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>创建流程</title>
+    <link href="~/layui/css/layui.css" rel="stylesheet" />
+    <link href="~/layui/css/modules/layer/default/layer.css" rel="stylesheet" />
+    <link href="~/css/workflow.css" rel="stylesheet" />
+    <link href="~/css/main.css" rel="stylesheet" />
+    <link href="~/css/common.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container-header">
+        创建流程
+    </div>
+    <div class="container" id="app">
+        <div class="head-flex">
+            <div><label class="form-lable">流程名称：</label></div>
+            <div><input type="text" class="input" v-model="workFlow.name"></div>
+            <div><label class="form-lable">关联实体名称：</label></div>
+            <div><input type="text" class="input" v-model="workFlow.domainName"></div>
+            <div><label class="form-lable">版本：</label></div>
+            <div><input type="text" class="input" v-model="workFlow.version"></div>
+            <div>
+                <button class="layui-btn layui-btn-sm" v-on:click="save">创建流程</button>
+            </div>
+        </div>
+    </div>
+    <script src="~/layui/layui.js"></script>
+    <script src="/js/require.js-2.3.6/require.min.js" type="text/javascript"></script>
+    <script src="/layui/layui.js" type="text/javascript"></script>
+    <script src="../../../js/common/require-config.js" type="text/javascript"></script>
+    <script>
+        require(['jquery', 'vue', 'utils', 'global'], function ($, Vue, utils) {
+            var id = utils.getUrlParams('id');
+            new Vue({
+                el: '#app',
+                data: {
+                    dataList: [],
+                    workFlow: {
+                        name: '',
+                        domainName: '',
+                        version: '',
+                    },
+                    id: ''
+                },
+                mounted: function () {
+                    var vueDom = this;
+                    vueDom.id = id;
+                    layui.use(['element', 'layer'], function () {
+                        var layer = layui.layer;
+                        if (id != undefined) {
+                            var loading = layer.load(3);
+                            $.ajax({
+                                type: 'get',
+                                dataType: 'json',
+                                url: '/workflow/' + id,
+                                success: function (res) {
+                                    vueDom.workFlow.name = res.data.workFlow.name;
+                                    vueDom.workFlow.domainName = res.data.workFlow.domainName;
+                                    vueDom.workFlow.version = res.data.workFlow.version;
+                                    layer.close(loading);
+                                },
+                                error: function (res) {
+                                    layer.close(loading);
+                                }
+                            });
+                        }
+                    });
+                },
+                methods: {
+                    defaultList: function (loading) {
+                        var that = this;
+                        $.ajax({
+                            type: 'post',
+                            dataType: 'json',
+                            url: '/api/menu/getList',
+                            data: {
+                                'isRootNode': true,
+                            },
+                            success: function (res) {
+                                that.dataList = res.data;
+                                layer.close(loading);
+                            },
+                            error: function (res) {
+                                layer.close(loading);
+                            }
+                        });
+                    },
+                    save: function () {
+                        var that = this;
+                        if (that.workFlow.name == '') {
+                            layer.msg('请填写流程名称', { icon: 7 });
+                            return;
+                        }
+                        if (that.workFlow.domainName == '') {
+                            layer.msg('请填写关联实体名称', { icon: 7 });
+                            return;
+                        }
+                        var index = layer.load(2);
+                        $.ajax({
+                            type: 'post',
+                            dataType: 'json',
+                            url: '/workflow/createFlow',
+                            data: JSON.stringify(that.workFlow),
+                            contentType: "application/json; charset=UTF-8",
+                            success: function (res) {
+                                that.id = res.data;
+                                window.open('/workflow/edit?id='that.id);
+
+                            },
+                            error: function (res) {
+                                layer.close(index);
+                            }
+                        });
+
+                    },
+                    editStart: function () {
+                        var that = this;
+                        layer.open({
+                            type: 2,
+                            content: '/flowdesign/Design?id=' + that.id,
+                            title: '配置开始步骤',
+                            area: ['400px', '200px'],
+                            btn: '保存',
+                            btn1: function (index, layero) {
+                                var body = layer.getChildFrame('body', index);
+                                var iframeWin = window[layero.find('iframe')[0]['name']];
+                                var workFlowNode = {
+                                    nodeName: iframeWin.app.__vue__.workFlowNode.nodeName,
+                                    workFlowId: that.id,
+                                    type: 1
+                                }
+                                $.ajax({
+                                    type: 'post',
+                                    dataType: 'json',
+                                    url: '/FlowDesign/AddFlowStep',
+                                    data: JSON.stringify(workFlowNode),
+                                    contentType: "application/json; charset=UTF-8",
+                                    success: function (res) {
+                                        that.workFlowNode = res.data;
+                                        layer.close(loading);
+                                    },
+                                    error: function (res) {
+                                        layer.close(loading);
+                                    }
+                                });
+                                layer.close(index);
+                            }
+                        });
+                    },
+                    singleApprove: function () {
+                        var that = this;
+                        layer.open({
+                            type: 2,
+                            content: '/flowdesign/SingleApprove?id=' + that.id,
+                            title: '配置开始步骤',
+                            area: ['600px', '350px'],
+                            //offset: ['100px', '150px'],
+                            btn: '保存',
+                            btn1: function (index, layero) {
+                                var body = layer.getChildFrame('body', index);
+                                var iframeWin = window[layero.find('iframe')[0]['name']];
+                                var workFlowNode = iframeWin.app.__vue__.workFlowNode;
+                                workFlowNode.workFlowNodeType = 3
+                                $.ajax({
+                                    type: 'post',
+                                    dataType: 'json',
+                                    url: '/FlowDesign/AddFlowStep',
+                                    data: JSON.stringify(workFlowNode),
+                                    contentType: "application/json; charset=UTF-8",
+                                    success: function (res) {
+                                        that.workFlowNode = res.data;
+                                    },
+                                    error: function (res) {
+                                        layer.close(loading);
+                                    }
+                                });
+                                layer.close(index);
+
+                            }
+                        });
+                    },
+                    remove: function (number, index) {
+                        var that = this;
+                        that.dataList.splice(index, 1)
+                    }
+                }
+            })
+        })
+    </script>
+</body>
+</html>

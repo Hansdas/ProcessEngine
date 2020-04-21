@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProcessEngine.Domain;
+using ProcessEngine.EF;
 using ProcessEngine.Maps;
 using ProcessEngine.Repository.Interface;
 using System;
@@ -10,9 +11,9 @@ using System.Text;
 
 namespace ProcessEngine.Repository
 {
-  public  class BaseRepository<T,V>: IBaseRepository<T,V> where T:Entity<V>
+  public  class BaseRepository<T,V>: IBaseRepository<T,V> where T:Entity<V>,new()
     {
-        private DBContext _context;
+        protected DBContext _context;
         public BaseRepository (DBContext context)
         {
             _context = context;
@@ -30,12 +31,6 @@ namespace ProcessEngine.Repository
             IQueryable<T> list = GetQueryable(where);
             return list.AsEnumerable();
         }
-
-        public T SelectById(V id)
-        {
-            throw new NotImplementedException();
-        }
-
         public IEnumerable<T> SelectByPage(int pageIndex, int pageSize, Expression<Func<T, bool>> where = null)
         {
             return GetQueryable(where).Skip((pageIndex-1)*pageSize).Take(pageSize);
@@ -48,10 +43,28 @@ namespace ProcessEngine.Repository
 
         public T SelectSingle(Expression<Func<T, bool>> where = null)
         {
-            throw new NotImplementedException();
+            T entity = GetQueryable(where).FirstOrDefault();
+            return entity;
         }
-
-        private IQueryable<T> GetQueryable(Expression<Func<T, bool>> where = null)
+        public void Update(T t)
+        {
+            _context.Entry(t).State = EntityState.Modified;
+            _context.Entry(t).Property(s => s.Id).IsModified = false;
+            _context.SaveChanges();
+        }
+        public void DeleteById(V id)
+        {
+            T entity = new T() { Id = id };
+            _context.Entry(entity).State = EntityState.Deleted;
+            _context.SaveChanges();
+        }
+        public void Delete(Expression<Func<T, bool>> where = null)
+        {
+            IEnumerable<T> results = Select(where);
+            _context.RemoveRange(results);
+            _context.SaveChanges();
+        }
+        protected IQueryable<T> GetQueryable(Expression<Func<T, bool>> where = null)
         {
             IQueryable<T> result = _context.Set<T>().AsNoTracking();
             if (where != null)

@@ -8,6 +8,10 @@ namespace ProcessEngine.Web.Models
     public class JsonReturn
     {
 
+        public JsonReturn(string code)
+        {
+            Code = code;
+        }
         public JsonReturn(string code,string message)
         {
             Code = code;

@@ -12,5 +12,9 @@ namespace ProcessEngine.Web.Controllers.Home
         {
             return View();
         }
+        public IActionResult Test()
+        {
+            return View();
+        }
     }
 }

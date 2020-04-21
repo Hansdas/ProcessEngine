@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace ProcessEngine.Domain.WokrFlow
+namespace ProcessEngine.Domain.WorkFlow
 {
     /// <summary>
     /// 流程信息
@@ -26,10 +26,6 @@ namespace ProcessEngine.Domain.WokrFlow
         /// 版本
         /// </summary>
         public int Version { get; set; }
-        /// <summary>
-        /// 创建时间
-        /// </summary>
-        public DateTime CreateTime { get; set; }
         /// <summary>
         /// 创建时间
         /// </summary>

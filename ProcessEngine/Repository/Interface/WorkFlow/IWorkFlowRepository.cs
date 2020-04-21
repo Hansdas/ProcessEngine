@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ProcessEngine.Repository.Interface.WorkFlow
 {
-   public interface IWorkFlowRepository: IBaseRepository<Domain.WokrFlow.WorkFlow,string>
+   public interface IWorkFlowRepository: IBaseRepository<Domain.WorkFlow.WorkFlow, string>
     {
        
     }

@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
-using ProcessEngine.Domain.WokrFlow;
+using ProcessEngine.Maps;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ProcessEngine.Maps
+namespace ProcessEngine.EF
 {
    public class DBContext:DbContext
     {
@@ -25,6 +25,7 @@ namespace ProcessEngine.Maps
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new WorkFlowMap());
+            modelBuilder.ApplyConfiguration(new WorkFlowNodeMap());
         }
     }
 }

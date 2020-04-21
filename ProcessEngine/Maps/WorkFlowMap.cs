@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ProcessEngine.Domain.WokrFlow;
+using ProcessEngine.Domain.WorkFlow;
 using System;
 using System.Collections.Generic;
 using System.Text;
