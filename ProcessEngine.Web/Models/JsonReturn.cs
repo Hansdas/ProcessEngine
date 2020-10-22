@@ -40,5 +40,23 @@ namespace ProcessEngine.Web.Models
         /// 返回数据
         /// </summary>
         public dynamic Data { get; private set; }
+        /// <summary>
+        /// 返回成功消息
+        /// </summary>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static JsonReturn Success(dynamic data=null)
+        {
+            return new JsonReturn("0", "", data);
+        }
+        /// <summary>
+        /// 返回失败消息
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <returns></returns>
+        public static JsonReturn Error(string msg)
+        {
+            return new JsonReturn("1",msg);
+        }
     }
 }

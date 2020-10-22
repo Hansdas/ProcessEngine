@@ -11,7 +11,7 @@ namespace ProcessEngine.Maps
     {
         public void Configure(EntityTypeBuilder<WorkFlow> builder)
         {
-            builder.ToTable("WF_WorkFlow");
+            builder.ToTable("PE_WorkFlow");
             builder.HasKey(s => s.Id);
             builder.Property(s => s.Id).HasColumnName("wf_id");
             builder.Property(s => s.Name).HasColumnName("wf_name");

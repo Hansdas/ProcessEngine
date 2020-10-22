@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using ProcessEngine.Application.IService;
 using ProcessEngine.Application.IService.WorkFlow;
 using ProcessEngine.Core;
@@ -10,15 +11,17 @@ using ProcessEngine.Domain.WorkFlow;
 using ProcessEngine.Repository.Interface.WorkFlow;
 using ProcessEngine.Web.Models;
 
-namespace ProcessEngine.Web.Controler.FlowDesign
+namespace ProcessEngine.Web.Controler
 {
-    public class FlowDesignController :Controller
+    [ApiController]
+    [Route("workflownode")]
+    public class WorkFlowNodeController :Controller
     {
         private IWorkFlowNodeService _workFlowNodeService;
         private IWorkFlowService _workFlowService;
         private IWorkFlowNodeRepository _workFlowNodeRepository;
         private IWorkFlowRepository _workFlowRepository;
-        public FlowDesignController(IWorkFlowNodeService workFlowNodeService, IWorkFlowService workFlowService
+        public WorkFlowNodeController(IWorkFlowNodeService workFlowNodeService, IWorkFlowService workFlowService
             , IWorkFlowNodeRepository workFlowNodeRepository, IWorkFlowRepository workFlowRepository)
         {
             _workFlowNodeService = workFlowNodeService;
@@ -26,25 +29,26 @@ namespace ProcessEngine.Web.Controler.FlowDesign
             _workFlowNodeRepository = workFlowNodeRepository;
             _workFlowRepository = workFlowRepository;
         }
+        [Route("design")]       
         public IActionResult Design()
         {
             return View();
         }
         [HttpGet]
-        [Route("flowdesign/nodetype-pre")]
+        [Route("type/control")]
         public IActionResult GetNodeTypeControl()
         {            
             return Json(new JsonReturn("0", typeof(WorkFlowNodeType).ToKeyValueList()));
         }
         //[HttpGet]
-        //[Route("flowdesign/pre-control/{workFlowId}")]
+        //[Route("/pre/{workFlowId}")]
         //public JsonResult GetPreviousNodes(string workFlowId)
         //{
         //    IList<WorkFlowNode> workFlowNodes = _workFlowNodeService.GetPreviousControl(workFlowId);
-        //    return Json(new JsonReturn("0", workFlowNodes)); 
+        //    return Json(new JsonReturn("0", workFlowNodes));
         //}
         [HttpGet]
-        [Route("workflow/{id}")]
+        [Route("{id}/step")]
         public IActionResult GetWorkFlow(string id)
         {
            
@@ -62,7 +66,7 @@ namespace ProcessEngine.Web.Controler.FlowDesign
 
         }
         [HttpGet]
-        [Route("flowdesign/workflownode/{nodeId}")]
+        [Route("workflow/workflownode/{nodeId}")]
         public IActionResult GetWorkFlowNode(string nodeId)
         {
 
@@ -80,6 +84,7 @@ namespace ProcessEngine.Web.Controler.FlowDesign
 
         }
         [HttpPost]
+        [Route("add")]
         public JsonResult AddFlowStep()
         {
             JsonReturn jsonReturn = null;
@@ -97,6 +102,7 @@ namespace ProcessEngine.Web.Controler.FlowDesign
             }
             return Json(jsonReturn);
         }
+       
         [HttpPost]
         public IActionResult GetFlowCount([FromBody]WorkFlowNodeCondition workFlowNodeCondition)
         {

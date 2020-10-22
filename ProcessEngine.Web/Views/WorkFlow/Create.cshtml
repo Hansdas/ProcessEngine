@@ -40,7 +40,7 @@
                     workFlow: {
                         name: '',
                         domainName: '',
-                        version: '',
+                        version: 1,
                     },
                     id: ''
                 },
@@ -53,7 +53,7 @@
                             var loading = layer.load(3);
                             $.ajax({
                                 type: 'get',
-                                dataType: 'json',
+                                dataType: 'json',                            
                                 url: '/workflow/' + id,
                                 success: function (res) {
                                     vueDom.workFlow.name = res.data.workFlow.name;
@@ -101,12 +101,12 @@
                         $.ajax({
                             type: 'post',
                             dataType: 'json',
-                            url: '/workflow/createFlow',
+                            url: '/workflow/create',
                             data: JSON.stringify(that.workFlow),
                             contentType: "application/json; charset=UTF-8",
                             success: function (res) {
                                 that.id = res.data;
-                                window.open('/workflow/edit?id='that.id);
+                                window.open('/workflow/edit?id='+ that.id);
 
                             },
                             error: function (res) {

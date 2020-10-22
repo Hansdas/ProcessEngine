@@ -32,10 +32,9 @@
                 <td> <textarea v-model="workFlowNode.nodeProperty"></textarea></td>
             </tr>
             <tr v-if="isShow(workFlowNode.type)">
-                <td> <label class="form-lable">前置节点</label></td>
-                <td v-for="option in previousList">
-                    <input type="checkbox" :value="option.id" class="checkbox" v-model="workFlowNode.previousNodeList" />
-                    <label>{{option.nodeName}}</label>
+                <td> <label class="form-lable">前置节点是否需要全部完成</label></td>
+                <td>
+                    <input type="checkbox"  title="是" checked="" v-model="workFlowNode.previousAllFinish" style="display:block !important">
                 </td>
             </tr>
             <tr v-if="isShow(workFlowNode.type)">
@@ -69,10 +68,11 @@
                         previousNodeList: [],
                         ReturnList: [],
                         operationName: '',
+                        previousAllFinish: true,
                         type: '99'
                     },
                     nodeType: {},
-                    previousList: {}, 
+                    previousList: {},
                 },
                 mounted: function () {
                     var that = this;
@@ -82,33 +82,33 @@
                         $.ajax({
                             type: 'get',
                             dataType: 'json',
-                            url: 'nodetype-pre',
+                            url: '/workflownode/type/control',
                             async: false,
                             success: function (res) {
                                 that.nodeType = res.data;
                                 layer.close(loading);
                             }
                         });
-                        $.ajax({
-                            type: 'get',
-                            dataType: 'json',
-                            url: 'pre-control/' + id,
-                            success: function (res) {
-                                that.previousList = res.data;
-                                if (nodeId != undefined) {
-                                    $.ajax({
-                                        type: 'get',
-                                        dataType: 'json',
-                                        url: 'workflownode/' + nodeId,
-                                        success: function (res) {
-                                            that.workFlowNode = res.data;
-                                            layer.close(loading);
-                                        }
-                                    });
-                                }
-                                layer.close(loading);
-                            }
-                        });                    
+                        //$.ajax({
+                        //    type: 'get',
+                        //    dataType: 'json',
+                        //    url: '/workflownode/pre-control/' + id,
+                        //    success: function (res) {
+                        //        that.previousList = res.data;
+                        //        if (nodeId != undefined) {
+                        //            $.ajax({
+                        //                type: 'get',
+                        //                dataType: 'json',
+                        //                url: 'workflownode/' + nodeId,
+                        //                success: function (res) {
+                        //                    that.workFlowNode = res.data;
+                        //                    layer.close(loading);
+                        //                }
+                        //            });
+                        //        }
+                        //        layer.close(loading);
+                        //    }
+                        //});
                     });
                 },
                 methods: {

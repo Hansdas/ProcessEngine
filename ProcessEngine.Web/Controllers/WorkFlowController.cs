@@ -10,8 +10,10 @@ using ProcessEngine.Domain.WorkFlow;
 using ProcessEngine.Repository.Interface.WorkFlow;
 using ProcessEngine.Web.Models;
 
-namespace ProcessEngine.Web.Controllers.FlowDesign
-{
+namespace ProcessEngine.Web.Controllers
+{  
+    [ApiController]
+    [Route("workflow")]
     public class WorkFlowController : Controller
     {
         private IWorkFlowRepository _workFlowRepository;
@@ -23,10 +25,12 @@ namespace ProcessEngine.Web.Controllers.FlowDesign
             _workFlowService = workFlowService;
             _workFlowNodeService = workFlowNodeService;
         }
-        public IActionResult Design()
+        [Route("create")]
+        public IActionResult Create()
         {
             return View();
         }
+        [Route("list")]
         public IActionResult List()
         {
             return View();
@@ -35,7 +39,7 @@ namespace ProcessEngine.Web.Controllers.FlowDesign
         {
             return View();
         }
-
+        [Route("edit")]
         public IActionResult Edit()
         {
             return View();
@@ -45,13 +49,14 @@ namespace ProcessEngine.Web.Controllers.FlowDesign
         /// </summary>
         /// <returns></returns>
         [HttpPost]
+        [Route("list/page")]
         public JsonResult PageList()
         {
             int currentPage = Convert.ToInt32(Request.Form["currentPage"]);
             int pageSize = Convert.ToInt32(Request.Form["pageSize"]);
             int count = _workFlowRepository.SelectCount();
             IEnumerable<WorkFlow> workFlows = _workFlowRepository.SelectByPage(currentPage, pageSize);
-            return Json(new JsonReturn("0", new { total = count, data = workFlows }));
+            return Json(JsonReturn.Success(new { total = count, data = workFlows }));
         }
          /// <summary>
          /// 删除
@@ -100,19 +105,11 @@ namespace ProcessEngine.Web.Controllers.FlowDesign
         /// <param name="workFlow"></param>
         /// <returns></returns>
         [HttpPost]
+        [Route("create")]
         public IActionResult CreateFlow([FromBody]WorkFlow workFlow)
         {
-            JsonReturn jsonReturn = null;
-            try
-            {
-                _workFlowService.Create(workFlow);
-                jsonReturn = new JsonReturn("0", "", workFlow.Id);
-            }
-            catch (Exception ex)
-            {
-                jsonReturn = new JsonReturn("1", ex.Message);
-            }
-            return Json(jsonReturn);
+            workFlow=_workFlowService.Create(workFlow);
+            return Json(JsonReturn.Success(workFlow.Id));
         }
         /// <summary>
         /// 创建
@@ -120,20 +117,13 @@ namespace ProcessEngine.Web.Controllers.FlowDesign
         /// <param name="workFlow"></param>
         /// <returns></returns>
         [HttpPost]
-        public JsonResult SaveDiagram(string diagramJson,string id)
+        [Route("save/diagram")]
+        public JsonResult SaveDiagram()
         {
             JsonReturn jsonReturn = null;
-
+            string diagramJson = Request.Form["diagramJson"];
+            string id = Request.Form["id"];
             _workFlowService.SaveDiagram(diagramJson, id);
-            //try
-            //{
-            //    _workFlowService.Create(workFlow);
-            //    jsonReturn = new JsonReturn("0", "", workFlow.Id);
-            //}
-            //catch (Exception ex)
-            //{
-            //    jsonReturn = new JsonReturn("1", ex.Message);
-            //}
             return Json(jsonReturn);
         }
     }

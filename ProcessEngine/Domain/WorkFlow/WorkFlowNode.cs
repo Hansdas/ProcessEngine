@@ -28,7 +28,7 @@ namespace ProcessEngine.Domain.WorkFlow
         /// </summary>
         public int OrderId { get; set; }
         /// <summary>
-        /// 节点处理人属性
+        /// 流程处理属性
         /// </summary>
         public string NodeProperty { get; set; }
 
@@ -36,6 +36,11 @@ namespace ProcessEngine.Domain.WorkFlow
         /// 流程活动名称
         /// </summary>
         public string NodeName { get; set; }
+
+        /// <summary>
+        /// 流程操作步骤名称
+        /// </summary>
+        public string OperationName { get; set; }
 
         /// <summary>
         /// 流程活动类型
@@ -64,11 +69,15 @@ namespace ProcessEngine.Domain.WorkFlow
         [NotMapped]
         public IList<string> PreviousNodeList { get; set; }
         /// <summary>
+        /// 前置节点是否需要全部结束
+        /// </summary>
+        public bool PreviousAllFinish { get; set; }
+        /// <summary>
         /// 退回节点集合（数据库持久化）
         /// </summary>
         public string ReturnIds { get; set; }
         /// <summary>
-        /// 退回节点集合（数据库持久化）
+        /// 退回节点集合
         /// </summary>
         [NotMapped]
         public IList<string> ReturnList

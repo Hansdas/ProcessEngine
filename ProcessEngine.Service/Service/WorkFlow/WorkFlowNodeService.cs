@@ -24,6 +24,11 @@ namespace ProcessEngine.Application.Service.WorkFlow
         {
             if (!update)
             {
+                workFlowNode.Id = Guid.NewGuid().ToString();
+                if (workFlowNode.Type == WorkFlowNodeType.开始)
+                    workFlowNode.NodeName = "开始";
+                else if (workFlowNode.Type == WorkFlowNodeType.结束)
+                    workFlowNode.NodeName = "结束";
                 _workFlowNodeRepository.Insert(workFlowNode);
             }
             else
@@ -51,6 +56,12 @@ namespace ProcessEngine.Application.Service.WorkFlow
                         dto.Style = string.IsNullOrEmpty(item.Style) ? defaultStyle : item.Style ;
                         break;
                     case WorkFlowNodeType.单人处理:
+                        dto.Style = string.IsNullOrEmpty(item.Style) ? defaultStyle : item.Style;
+                        break;
+                    case WorkFlowNodeType.判断:
+                        dto.Style = string.IsNullOrEmpty(item.Style) ? defaultStyle : item.Style;
+                        break;
+                    case WorkFlowNodeType.结束:
                         dto.Style = string.IsNullOrEmpty(item.Style) ? defaultStyle : item.Style;
                         break;
                 }

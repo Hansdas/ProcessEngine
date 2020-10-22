@@ -14,6 +14,10 @@ namespace ProcessEngine.Repository
   public  class BaseRepository<T,V>: IBaseRepository<T,V> where T:Entity<V>,new()
     {
         protected DBContext _context;
+        /// <summary>
+        /// 是否降序
+        /// </summary>
+        protected bool desc = true;
         public BaseRepository (DBContext context)
         {
             _context = context;
@@ -41,7 +45,7 @@ namespace ProcessEngine.Repository
            return GetQueryable(where).Count();
         }
 
-        public T SelectSingle(Expression<Func<T, bool>> where = null)
+        public T SelectSingle(Expression<Func<T, bool>> where = null, Expression<Func<T, object>> orderBy = null)
         {
             T entity = GetQueryable(where).FirstOrDefault();
             return entity;
@@ -64,11 +68,13 @@ namespace ProcessEngine.Repository
             _context.RemoveRange(results);
             _context.SaveChanges();
         }
-        protected IQueryable<T> GetQueryable(Expression<Func<T, bool>> where = null)
+        protected IQueryable<T> GetQueryable(Expression<Func<T, bool>> where = null, Expression<Func<T, object>> orderBy = null)
         {
             IQueryable<T> result = _context.Set<T>().AsNoTracking();
             if (where != null)
-                return result.Where(where);
+                result= result.Where(where);
+            if (orderBy != null)
+                result =desc==true?result.OrderByDescending(orderBy):result.OrderBy(orderBy);
             return result;
         }
     }
